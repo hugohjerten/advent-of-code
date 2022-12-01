@@ -81,19 +81,42 @@ func getElfs(filePath string) []Elf {
 	return elfs
 }
 
-func maxCalories(elfs []Elf) int {
+func maxCalories(elfs []Elf) (int, int) {
 	max := 0
-	for _, elf := range elfs {
+	index := 0
+	for i, elf := range elfs {
 		if elf.sum > max {
 			max = elf.sum
+			index = i
 		}
 	}
 
-	return max
+	return max, index
+}
+
+func removeElf(elfs []Elf, index int) []Elf {
+	ret := make([]Elf, 0)
+	ret = append(ret, elfs[:index]...)
+	return append(ret, elfs[index+1:]...)
+}
+
+func topThreeCalories(elfs []Elf) int {
+	sum := 0
+	for i := 0; i < 3; i++ {
+		max, index := maxCalories(elfs)
+		sum = sum + max
+
+		elfs = removeElf(elfs, index)
+	}
+
+	return sum
 }
 
 func main() {
 	elfs := getElfs("input.txt")
-	max := maxCalories(elfs)
+	max, _ := maxCalories(elfs)
 	fmt.Println("Max calories: ", max)
+
+	topThree := topThreeCalories(elfs)
+	fmt.Println("Top three calories: ", topThree)
 }
