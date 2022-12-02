@@ -2,14 +2,22 @@ package game
 
 import (
 	"2022/utils"
+	"fmt"
 )
 
 type Shape int
+type Strategy int
 
 const (
 	Rock Shape = iota
 	Paper
 	Scissors
+)
+
+const (
+	Lose Strategy = iota
+	Draw
+	Win
 )
 
 type Round struct {
@@ -20,10 +28,11 @@ type Round struct {
 }
 
 type Game struct {
-	rounds []Round
+	rounds       []Round
+	withStrategy bool
 }
 
-func (g Game) TotalScores() (int, int) {
+func (g Game) PrintTotalScores() {
 	total1 := 0
 	total2 := 0
 	for _, round := range g.rounds {
@@ -31,7 +40,10 @@ func (g Game) TotalScores() (int, int) {
 		total2 += round.score2
 	}
 
-	return total1, total2
+	fmt.Println("WithStrategy: ", g.withStrategy)
+	fmt.Println("Player 1: ", total1)
+	fmt.Println("Player 2: ", total2)
+
 }
 
 var (
@@ -46,6 +58,14 @@ var (
 )
 
 var (
+	strategyMap = map[string]Strategy{
+		"X": Lose,
+		"Y": Draw,
+		"Z": Win,
+	}
+)
+
+var (
 	scoreMap = map[Shape]int{
 		Rock:     1,
 		Paper:    2,
@@ -53,20 +73,18 @@ var (
 	}
 )
 
-func check(ok bool, str string) {
-	if !ok {
-		panic("Could not parse Shape!")
-	}
+func parseShape(str string) Shape {
+	s := shapesMap[str]
+	return s
 }
 
-func ParseShape(str string) Shape {
-	c, ok := shapesMap[str]
-	check(ok, str)
-	return c
+func parseStrategy(str string) Strategy {
+	s := strategyMap[str]
+	return s
 }
 
 // Return outcome of round, 0 = loss, 3 = draw, 6 = win
-func roundOutcome1(one Shape, two Shape) (int, int) {
+func roundOutcome(one Shape, two Shape) (int, int) {
 	if one == two {
 		return 3, 3
 	}
@@ -82,14 +100,50 @@ func roundOutcome1(one Shape, two Shape) (int, int) {
 	return 0, 6
 }
 
-func evaluateRound1(round []string) Round {
-	if len(round) != 2 {
-		panic("Bad number of shapes!")
+func drawAgainst(shape Shape) Shape {
+	return shape
+}
+
+func loseAgainst(shape Shape) Shape {
+	if shape == Rock {
+		return Scissors
+	}
+	if shape == Paper {
+		return Rock
+	}
+	return Paper
+}
+
+func winAgainst(shape Shape) Shape {
+	if shape == Rock {
+		return Paper
+	}
+	if shape == Paper {
+		return Scissors
+	}
+	return Rock
+}
+
+var (
+	determineShape = map[Strategy]func(Shape) Shape{
+		Lose: loseAgainst,
+		Draw: drawAgainst,
+		Win:  winAgainst,
+	}
+)
+
+func evaluateRound(round []string, part2 bool) Round {
+	shape1 := parseShape(round[0])
+	var shape2 Shape
+
+	if part2 {
+		strategy := parseStrategy(round[1])
+		shape2 = determineShape[strategy](shape1)
+	} else {
+		shape2 = parseShape(round[1])
 	}
 
-	shape1 := ParseShape(round[0])
-	shape2 := ParseShape(round[1])
-	outcome1, outcome2 := roundOutcome1(shape1, shape2)
+	outcome1, outcome2 := roundOutcome(shape1, shape2)
 
 	return Round{
 		shape1,
@@ -100,14 +154,15 @@ func evaluateRound1(round []string) Round {
 
 }
 
-func GetGamePart(filePath string) Game {
+func GetGame(filePath string, withStrategy bool) Game {
 	lines := utils.ReadLines(filePath)
 	split := utils.SplitStringsOnWhitespace(lines)
 
 	rounds := make([]Round, len(split))
 	for i, round := range split {
-		rounds[i] = evaluateRound1(round)
+
+		rounds[i] = evaluateRound(round, withStrategy)
 	}
 
-	return Game{rounds}
+	return Game{rounds, withStrategy}
 }
