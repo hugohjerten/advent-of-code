@@ -1,6 +1,9 @@
 package utils
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 // Cast slice of string to slice of int
 func Intify(strs []string) []int {
@@ -32,4 +35,17 @@ func SeparateSliceOnNewLine(baseList []string) [][]string {
 	slices = append(slices, baseList[sliceStart:])
 
 	return slices
+}
+
+// Split string on whitespace
+func SplitStringOnWhitespace(str string) []string {
+	return strings.Fields(str)
+}
+
+func SplitStringsOnWhitespace(strs []string) [][]string {
+	split := make([][]string, len(strs))
+	for i, str := range strs {
+		split[i] = SplitStringOnWhitespace(str)
+	}
+	return split
 }
