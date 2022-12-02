@@ -25,6 +25,7 @@ func ReadLines(path string) []string {
 	return strings.Split(string(content), "\n")
 }
 
+// Split slice of strings, on empty elements; returning multiple slices.
 func SeparateSlices(baseList []string) [][]string {
 	slices := make([][]string, 0, len(baseList))
 
