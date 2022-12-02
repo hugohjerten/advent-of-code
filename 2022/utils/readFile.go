@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -17,7 +17,7 @@ func check(err error) {
 func ReadLines(path string) []string {
 	absolutePath, err := filepath.Abs(path)
 	check(err)
-	fileContent, err := ioutil.ReadFile(absolutePath)
+	fileContent, err := os.ReadFile(absolutePath)
 	check(err)
 
 	content := string(fileContent)
