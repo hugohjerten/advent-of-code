@@ -24,24 +24,3 @@ func ReadLines(path string) []string {
 
 	return strings.Split(string(content), "\n")
 }
-
-// Split slice of strings, on empty elements; returning multiple slices.
-func SeparateSlices(baseList []string) [][]string {
-	slices := make([][]string, 0, len(baseList))
-
-	sliceStart := 0
-	for i := 0; i < len(baseList); i++ {
-
-		// When empty string, have reached end of slice
-		if baseList[i] == "" {
-			length := i - sliceStart
-			slices = append(slices, baseList[sliceStart:sliceStart+length])
-			sliceStart = i + 1
-		}
-	}
-
-	// Add last slice which is missed in above for-loop
-	slices = append(slices, baseList[sliceStart:])
-
-	return slices
-}

@@ -1,0 +1,35 @@
+package utils
+
+import "strconv"
+
+// Cast slice of string to slice of int
+func Intify(strs []string) []int {
+	ints := make([]int, len(strs))
+	for i := range ints {
+		ints[i], _ = strconv.Atoi(strs[i])
+	}
+
+	return ints
+}
+
+// Split slice of strings, on empty elements; returning multiple slices.
+// Eg ["A", "B", "C", "", "D", "E"] -> [["A", "B", "C"], ["D", "E"]]
+func SeparateSliceOnNewLine(baseList []string) [][]string {
+	slices := make([][]string, 0, len(baseList))
+
+	sliceStart := 0
+	for i := 0; i < len(baseList); i++ {
+
+		// When empty string, have reached end of slice
+		if baseList[i] == "" {
+			length := i - sliceStart
+			slices = append(slices, baseList[sliceStart:sliceStart+length])
+			sliceStart = i + 1
+		}
+	}
+
+	// Add last slice which is missed in above for-loop
+	slices = append(slices, baseList[sliceStart:])
+
+	return slices
+}

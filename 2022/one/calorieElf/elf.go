@@ -19,7 +19,7 @@ func sum(calories []int) int {
 
 func GetElves(filePath string) []Elf {
 	slice := utils.ReadLines(filePath)
-	slices := utils.SeparateSlices(slice)
+	slices := utils.SeparateSliceOnNewLine(slice)
 
 	elfs := make([]Elf, len(slices))
 	for i, slice := range slices {
