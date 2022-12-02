@@ -21,18 +21,18 @@ func GetElves(filePath string) []Elf {
 	slice := utils.ReadLines(filePath)
 	slices := utils.SeparateSliceOnNewLine(slice)
 
-	elfs := make([]Elf, len(slices))
+	elves := make([]Elf, len(slices))
 	for i, slice := range slices {
 		calories := utils.Intify(slice)
-		elfs[i] = Elf{calories, sum(calories)}
+		elves[i] = Elf{calories, sum(calories)}
 	}
-	return elfs
+	return elves
 }
 
-func MaxCalories(elfs []Elf) (int, int) {
+func MaxCalories(elves []Elf) (int, int) {
 	max := 0
 	index := 0
-	for i, elf := range elfs {
+	for i, elf := range elves {
 		if elf.sum > max {
 			max = elf.sum
 			index = i
@@ -42,19 +42,19 @@ func MaxCalories(elfs []Elf) (int, int) {
 	return max, index
 }
 
-func removeElf(elfs []Elf, index int) []Elf {
+func removeElf(elves []Elf, index int) []Elf {
 	ret := make([]Elf, 0)
-	ret = append(ret, elfs[:index]...)
-	return append(ret, elfs[index+1:]...)
+	ret = append(ret, elves[:index]...)
+	return append(ret, elves[index+1:]...)
 }
 
-func TopThreeCalories(elfs []Elf) int {
+func TopThreeCalories(elves []Elf) int {
 	sum := 0
 	for i := 0; i < 3; i++ {
-		max, index := MaxCalories(elfs)
+		max, index := MaxCalories(elves)
 		sum = sum + max
 
-		elfs = removeElf(elfs, index)
+		elves = removeElf(elves, index)
 	}
 
 	return sum
