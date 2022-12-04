@@ -10,4 +10,6 @@ func Run(filePath string) {
 	sumPriority := sack.SumOfPriorityOfBadItems(rucksacks)
 	fmt.Println("Sum of priority of item types: ", sumPriority)
 
+	sumPriority = sack.SumOfPriorityOfGroupBadges(rucksacks)
+	fmt.Println("Sum of priority of group badges: ", sumPriority)
 }

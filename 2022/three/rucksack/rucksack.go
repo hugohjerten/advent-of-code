@@ -6,8 +6,13 @@ import (
 )
 
 type Rucksack struct {
-	first  string
-	second string
+	first    string
+	second   string
+	allItems string
+}
+
+type Group struct {
+	rucksacks []Rucksack
 }
 
 func GetRucksacks(filePath string) []Rucksack {
@@ -16,7 +21,7 @@ func GetRucksacks(filePath string) []Rucksack {
 	rucksacks := make([]Rucksack, len(lines))
 	for i, str := range lines {
 		first, second := utils.SplitStringInMiddle(str)
-		rucksacks[i] = Rucksack{first, second}
+		rucksacks[i] = Rucksack{first, second, str}
 	}
 
 	return rucksacks
@@ -51,6 +56,41 @@ func SumOfPriorityOfBadItems(rucksacks []Rucksack) int {
 	for _, r := range rucksacks {
 		item := r.findBadItem()
 		sumPriority += itemPriority(item)
+	}
+
+	return sumPriority
+}
+
+func groupsOfThrees(rucksacks []Rucksack) []Group {
+	nbr := len(rucksacks) / 3
+	groups := make([]Group, nbr)
+	j := 0
+	k := 3
+	for i := 0; i < nbr; i++ {
+		groups[i] = Group{rucksacks[j:k]}
+		j = k
+		k += 3
+	}
+
+	return groups
+}
+
+func (g Group) groupBadge() rune {
+	for _, item := range g.rucksacks[0].allItems {
+		if strings.ContainsRune(g.rucksacks[1].allItems, item) &&
+			strings.ContainsRune(g.rucksacks[2].allItems, item) {
+			return item
+		}
+	}
+	panic("Couldn't find badge in group!")
+}
+
+func SumOfPriorityOfGroupBadges(rucksacks []Rucksack) int {
+	groups := groupsOfThrees(rucksacks)
+	sumPriority := 0
+
+	for _, g := range groups {
+		sumPriority += itemPriority(g.groupBadge())
 	}
 
 	return sumPriority
