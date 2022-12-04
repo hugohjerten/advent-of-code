@@ -50,6 +50,10 @@ func SplitStringsOnWhitespace(strs []string) [][]string {
 	return split
 }
 
+func SplitStringOn(s string, sep string) []string {
+	return strings.Split(s, sep)
+}
+
 // Split string in middle, raise error if not even number
 func SplitStringInMiddle(str string) (string, string) {
 	if len(str)%2 != 0 {
