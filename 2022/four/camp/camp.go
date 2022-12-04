@@ -73,3 +73,25 @@ func NumberAssignmentsWithRangeFullyContainOther(pairs []Pair) int {
 	}
 	return nbr
 }
+
+func (p Pair) RangesOverlap() bool {
+	for _, id := range p.first {
+		if utils.ContainsInt(p.second, id) {
+			return true
+
+		}
+	}
+
+	return false
+}
+
+func NumberAssignmentsWithOverlappingRanges(pairs []Pair) int {
+	nbr := 0
+	for _, p := range pairs {
+		if p.RangesOverlap() {
+			nbr += 1
+		}
+	}
+
+	return nbr
+}
