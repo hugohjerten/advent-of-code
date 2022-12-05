@@ -89,7 +89,7 @@ func getRearrangements(filePath string) []Rearrangement {
 	return rearrangements
 }
 
-func rearrange(stacks Stacks, rearrangements []Rearrangement) Stacks {
+func rearrange9000(stacks Stacks, rearrangements []Rearrangement) Stacks {
 	for _, r := range rearrangements {
 
 		for i := 0; i < r.amount; i++ {
@@ -102,6 +102,21 @@ func rearrange(stacks Stacks, rearrangements []Rearrangement) Stacks {
 			// Add popped element
 			stacks[r.to] = append(stacks[r.to], pop)
 		}
+	}
+
+	return stacks
+}
+
+func rearrange9001(stacks Stacks, rearrangements []Rearrangement) Stacks {
+	for _, r := range rearrangements {
+		n := len(stacks[r.from]) - r.amount
+		pop := stacks[r.from][n:]
+
+		// Remove elements
+		stacks[r.from] = stacks[r.from][:n]
+
+		// Add popped element
+		stacks[r.to] = append(stacks[r.to], pop...)
 	}
 
 	return stacks
@@ -120,7 +135,10 @@ func Run(stackFilePath string, rearrangementFilePath string) {
 	stacks := getStacks(stackFilePath)
 	rearrangements := getRearrangements(rearrangementFilePath)
 
-	stacks = rearrange(stacks, rearrangements)
+	stacks = rearrange9000(stacks, rearrangements)
+	fmt.Println("Top of stacks: ", stacks.topOfStack())
 
+	stacks = getStacks(stackFilePath)
+	stacks = rearrange9001(stacks, rearrangements)
 	fmt.Println("Top of stacks: ", stacks.topOfStack())
 }
