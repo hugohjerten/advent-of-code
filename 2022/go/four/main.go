@@ -1,7 +1,7 @@
 package four
 
 import (
-	"2022/four/camp"
+	"2022/go/four/camp"
 	"fmt"
 )
 

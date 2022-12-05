@@ -1,7 +1,7 @@
 package two
 
 import (
-	"2022/two/game"
+	"2022/go/two/game"
 )
 
 func Run(filePath string) {

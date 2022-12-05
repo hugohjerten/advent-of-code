@@ -3,7 +3,7 @@ package one
 import (
 	"fmt"
 
-	elf "2022/one/calorieElf"
+	elf "2022/go/one/calorieElf"
 )
 
 func Run(filePath string) {

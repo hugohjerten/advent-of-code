@@ -1,7 +1,7 @@
 package three
 
 import (
-	sack "2022/three/rucksack"
+	sack "2022/go/three/rucksack"
 	"fmt"
 )
 

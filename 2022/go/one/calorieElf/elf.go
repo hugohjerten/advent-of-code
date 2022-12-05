@@ -1,7 +1,7 @@
 package calorieElf
 
 import (
-	"2022/utils"
+	"2022/go/utils"
 )
 
 type Elf struct {

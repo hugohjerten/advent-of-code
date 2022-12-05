@@ -1,7 +1,7 @@
 package camp
 
 import (
-	"2022/utils"
+	"2022/go/utils"
 	"strconv"
 )
 
