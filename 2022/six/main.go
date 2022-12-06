@@ -5,20 +5,27 @@ import (
 	"fmt"
 )
 
+type Type int
+
+const (
+	Start   Type = 4
+	Message Type = 14
+)
+
 type SubRoutine struct {
 	cache   []byte
 	signal  string
 	current int
+	t       Type
 }
 
-func NewSubRoutine(signal string) SubRoutine {
-	mrkr := 4
-	cache := make([]byte, mrkr)
+func NewSubRoutine(signal string, t Type) SubRoutine {
+	cache := make([]byte, int(t))
 
-	for i := 0; i < mrkr; i++ {
+	for i := 0; i < int(t); i++ {
 		cache[i] = signal[i]
 	}
-	return SubRoutine{cache, signal, 3}
+	return SubRoutine{cache, signal, int(t) - 1, t}
 }
 
 func (s SubRoutine) packetStart() bool {
@@ -28,8 +35,11 @@ func (s SubRoutine) packetStart() bool {
 		set[b] = struct{}{}
 	}
 
-	// If length of set is not 4, not all characters are different
-	return len(set) == 4
+	if s.t == Start {
+		return len(set) == int(s.t)
+	}
+	return len(set) == int(s.t)
+
 }
 
 func (s *SubRoutine) next() {
@@ -38,7 +48,7 @@ func (s *SubRoutine) next() {
 	s.cache = append(s.cache, s.signal[s.current])
 }
 
-func (s SubRoutine) FindPacketStart() int {
+func (s SubRoutine) Find() int {
 	for {
 		if s.current > len(s.signal) {
 			break
@@ -53,8 +63,9 @@ func (s SubRoutine) FindPacketStart() int {
 
 func Run(filePath string) {
 	signal := utils.ReadLines(filePath)[0]
-	s := NewSubRoutine(signal)
-	markerEnd := s.FindPacketStart()
-	fmt.Println("Number of characters to process: ", markerEnd)
+	s := NewSubRoutine(signal, Start)
+	fmt.Println("Number of characters to process: ", s.Find())
 
+	s = NewSubRoutine(signal, Message)
+	fmt.Println("Number of characters to process: ", s.Find())
 }
