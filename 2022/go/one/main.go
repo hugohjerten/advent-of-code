@@ -6,8 +6,8 @@ import (
 	elf "2022/go/one/calorieElf"
 )
 
-func Run(filePath string) {
-	elves := elf.GetElves(filePath)
+func Run() {
+	elves := elf.GetElves("one/input.txt")
 	max, _ := elf.MaxCalories(elves)
 	fmt.Println("Max calories: ", max)
 

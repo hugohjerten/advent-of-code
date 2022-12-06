@@ -4,7 +4,7 @@ import (
 	"2022/go/two/game"
 )
 
-func Run(filePath string) {
+func Run() {
 	g := game.GetGame("two/input.txt", false)
 	g.PrintTotalScores()
 

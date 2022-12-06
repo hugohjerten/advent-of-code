@@ -30,7 +30,7 @@ func trimCrate(crate Crate) Crate {
 }
 
 func getStacks(filePath string) Stacks {
-	lines := utils.ReadLines(filePath)
+	lines := utils.ReadLines(filePath)[:8]
 	nbr := 9
 	stacks := emptyStacks(nbr)
 
@@ -75,7 +75,7 @@ func trimRearrangement(str string) string {
 }
 
 func getRearrangements(filePath string) []Rearrangement {
-	lines := utils.ReadLines(filePath)
+	lines := utils.ReadLines(filePath)[10:]
 	rearrangements := make([]Rearrangement, len(lines))
 
 	for i, str := range lines {
@@ -131,14 +131,14 @@ func (s Stacks) topOfStack() string {
 	return strings.Join(tops, "")
 }
 
-func Run(stackFilePath string, rearrangementFilePath string) {
-	stacks := getStacks(stackFilePath)
-	rearrangements := getRearrangements(rearrangementFilePath)
+func Run() {
+	stacks := getStacks("five/input.txt")
+	rearrangements := getRearrangements("five/input.txt")
 
 	stacks = rearrange9000(stacks, rearrangements)
 	fmt.Println("Top of stacks: ", stacks.topOfStack())
 
-	stacks = getStacks(stackFilePath)
+	stacks = getStacks("five/input.txt")
 	stacks = rearrange9001(stacks, rearrangements)
 	fmt.Println("Top of stacks: ", stacks.topOfStack())
 }

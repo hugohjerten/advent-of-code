@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func Run(filePath string) {
-	rucksacks := sack.GetRucksacks(filePath)
+func Run() {
+	rucksacks := sack.GetRucksacks("three/input.txt")
 	sumPriority := sack.SumOfPriorityOfBadItems(rucksacks)
 	fmt.Println("Sum of priority of item types: ", sumPriority)
 
