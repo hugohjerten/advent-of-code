@@ -13,12 +13,12 @@ import (
 
 var (
 	solve = map[string]func(){
-		"one":   one.Run,
-		"two":   two.Run,
-		"three": three.Run,
-		"four":  four.Run,
-		"five":  five.Run,
-		"six":   six.Run,
+		"1": one.Run,
+		"2": two.Run,
+		"3": three.Run,
+		"4": four.Run,
+		"5": five.Run,
+		"6": six.Run,
 	}
 )
 

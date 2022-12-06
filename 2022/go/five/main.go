@@ -131,14 +131,16 @@ func (s Stacks) topOfStack() string {
 	return strings.Join(tops, "")
 }
 
+const input = "../input/5.txt"
+
 func Run() {
-	stacks := getStacks("five/input.txt")
-	rearrangements := getRearrangements("five/input.txt")
+	stacks := getStacks(input)
+	rearrangements := getRearrangements(input)
 
 	stacks = rearrange9000(stacks, rearrangements)
 	fmt.Println("Top of stacks: ", stacks.topOfStack())
 
-	stacks = getStacks("five/input.txt")
+	stacks = getStacks(input)
 	stacks = rearrange9001(stacks, rearrangements)
 	fmt.Println("Top of stacks: ", stacks.topOfStack())
 }

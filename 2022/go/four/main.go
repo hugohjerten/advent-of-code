@@ -5,8 +5,10 @@ import (
 	"fmt"
 )
 
+const input = "../input/4.txt"
+
 func Run() {
-	pairs := camp.GetPairs("four/input.txt")
+	pairs := camp.GetPairs(input)
 	sum := camp.NumberAssignmentsWithRangeFullyContainOther(pairs)
 	fmt.Println("Total pairs: ", len(pairs))
 	fmt.Println("Number of pairs with one range containing the other: ", sum)

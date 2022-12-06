@@ -9,9 +9,9 @@ brew install go
 # cd to go dir
 cd 2022/go
 
-# run day one
-go run main.go one
+# run day 1
+go run main.go 1
 
-# run day two
-go run main.go two
+# run day 2
+go run main.go 2
 ```

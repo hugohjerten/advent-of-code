@@ -57,8 +57,10 @@ func (s SubRoutine) Find() int {
 	panic("Did not find it.")
 }
 
+const input = "../input/6.txt"
+
 func Run() {
-	signal := utils.ReadLines("six/input.txt")[0]
+	signal := utils.ReadLines(input)[0]
 	s := NewSubRoutine(signal, Start)
 	fmt.Println("Number of characters to process: ", s.Find())
 
