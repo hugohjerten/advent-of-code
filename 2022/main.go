@@ -1,7 +1,7 @@
 package main
 
-import "2022/five"
+import "2022/six"
 
 func main() {
-	five.Run("five/input/starting_stacks.txt", "five/input/rearrangement.txt")
+	six.Run("six/input.txt")
 }
