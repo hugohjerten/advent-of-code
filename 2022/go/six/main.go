@@ -35,11 +35,7 @@ func (s SubRoutine) packetStart() bool {
 		set[b] = struct{}{}
 	}
 
-	if s.t == Start {
-		return len(set) == int(s.t)
-	}
 	return len(set) == int(s.t)
-
 }
 
 func (s *SubRoutine) next() {
