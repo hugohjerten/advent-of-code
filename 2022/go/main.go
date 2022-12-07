@@ -4,6 +4,7 @@ import (
 	"2022/go/five"
 	"2022/go/four"
 	"2022/go/one"
+	"2022/go/seven"
 	"2022/go/six"
 	"2022/go/three"
 	"2022/go/two"
@@ -19,6 +20,7 @@ var (
 		"4": four.Run,
 		"5": five.Run,
 		"6": six.Run,
+		"7": seven.Run,
 	}
 )
 
