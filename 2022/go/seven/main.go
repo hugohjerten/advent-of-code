@@ -54,7 +54,6 @@ func readFileSystem(lines []string) *Dir {
 
 	i := 1
 	for {
-		// ls
 		if lines[i] == "$ ls" {
 			i = d.parseLsOutput(lines, i+1)
 		}
@@ -63,7 +62,6 @@ func readFileSystem(lines []string) *Dir {
 			break
 		}
 
-		// cd ..
 		if lines[i] == "$ cd .." {
 			d = d.parent
 
@@ -71,7 +69,6 @@ func readFileSystem(lines []string) *Dir {
 			continue
 		}
 
-		// cd subdir
 		if strings.HasPrefix(lines[i], "$ cd ") {
 			split := utils.SplitStringOnWhitespace(lines[i])
 			d = d.children[split[2]]
@@ -86,23 +83,55 @@ func readFileSystem(lines []string) *Dir {
 	return root
 }
 
-func (d Dir) SumOfSizes(total int) (int, int) {
+func (d Dir) Size() int {
 	sum := 0
 	for _, size := range d.files {
 		sum += size
 	}
 
-	childSum := 0
 	for _, dir := range d.children {
-		childSum, total = dir.SumOfSizes(total)
-		sum += childSum
+		sum += dir.Size()
 	}
 
-	if sum <= 100000 {
-		total += sum
+	return sum
+}
+
+func (d Dir) Sizes() []int {
+	sizes := make([]int, 0)
+	sizes = append(sizes, d.Size())
+
+	for _, child := range d.children {
+		sizes = append(sizes, child.Sizes()...)
 	}
 
-	return sum, total
+	return sizes
+}
+
+func (d Dir) SumOfSizes() {
+	sizes := d.Sizes()
+	total := 0
+
+	for _, size := range sizes {
+		if size < 100000 {
+			total += size
+		}
+	}
+
+	fmt.Println("Sum of sizes: ", total)
+}
+
+func (d Dir) SmallestDir() {
+	need := 30000000 - (70000000 - d.Size())
+	dirs := d.Sizes()
+
+	size := 10000000
+	for _, s := range dirs {
+		if s >= need && s < size {
+			size = s
+		}
+	}
+
+	fmt.Println("Smallest dir: ", size)
 }
 
 const input = "../input/7.txt"
@@ -111,6 +140,6 @@ func Run() {
 	lines := utils.ReadLines(input)
 	root := readFileSystem(lines)
 
-	_, total := root.SumOfSizes(0)
-	fmt.Println("Sum of sizes: ", total)
+	root.SumOfSizes()
+	root.SmallestDir()
 }
