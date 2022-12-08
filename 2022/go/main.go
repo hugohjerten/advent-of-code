@@ -1,6 +1,7 @@
 package main
 
 import (
+	"2022/go/eight"
 	"2022/go/five"
 	"2022/go/four"
 	"2022/go/one"
@@ -21,6 +22,7 @@ var (
 		"5": five.Run,
 		"6": six.Run,
 		"7": seven.Run,
+		"8": eight.Run,
 	}
 )
 
