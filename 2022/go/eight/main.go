@@ -57,13 +57,19 @@ func isVisible(x int, y int, g Grid) bool {
 
 }
 
-func VisibleTrees(g Grid) {
+func Trees(g Grid) {
 	cnt := 0
+	max := 0
 	for i := 1; i < len(g)-1; i++ {
 		for j := 1; j < len(g[0])-1; j++ {
 
 			if isVisible(i, j, g) {
 				cnt += 1
+			}
+
+			view := viewingDistance(i, j, g)
+			if view > max {
+				max = view
 			}
 		}
 	}
@@ -71,7 +77,55 @@ func VisibleTrees(g Grid) {
 	// outer edge
 	cnt += len(g)*2 + (len(g[0])-2)*2
 
-	fmt.Println("COUNT: ", cnt)
+	fmt.Println("Count: ", cnt)
+	fmt.Println("Max: ", max)
+}
+
+func viewingDistance(x int, y int, g Grid) int {
+	h := g[x][y]
+	vis := 1
+
+	// Above
+	cnt := 0
+	for i := x - 1; i >= 0; i-- {
+		cnt += 1
+		if g[i][y] >= h || i == 0 {
+			vis *= cnt
+			break
+		}
+	}
+
+	// Below
+	cnt = 0
+	for i := x + 1; i < len(g); i++ {
+		cnt += 1
+		if g[i][y] >= h || i == len(g)-1 {
+			vis *= cnt
+			break
+		}
+	}
+
+	// Left
+	cnt = 0
+	for j := y - 1; j >= 0; j-- {
+		cnt += 1
+		if g[x][j] >= h || j == 0 {
+			vis *= cnt
+			break
+		}
+	}
+
+	// Right
+	cnt = 0
+	for j := y + 1; j < len(g); j++ {
+		cnt += 1
+		if g[x][j] >= h || j == len(g)-1 {
+			vis *= cnt
+			break
+		}
+	}
+
+	return vis
 }
 
 func parseTrees(filePath string) Grid {
@@ -93,5 +147,5 @@ const input = "../input/8.txt"
 
 func Run() {
 	grid := parseTrees(input)
-	VisibleTrees(grid)
+	Trees(grid)
 }
