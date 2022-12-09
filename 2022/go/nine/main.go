@@ -35,17 +35,22 @@ type Knot struct {
 }
 
 type Rope struct {
-	head Knot
-	tail Knot
-	// set of historic locations
+	knots []Knot
+	// set of historic knot locations
 	hist map[Knot]void
 }
 
-func NewRope() Rope {
-	loc := Knot{0, 0}
-	hist := make(map[Knot]void, 0)
-	hist[loc] = member
-	return Rope{loc, loc, hist}
+func NewRope(knots int) Rope {
+	ks := make([]Knot, knots)
+	hist := map[Knot]void{}
+
+	for i := 0; i < knots; i++ {
+		knot := Knot{0, 0}
+		ks[i] = knot
+	}
+	hist[ks[0]] = member
+
+	return Rope{ks, hist}
 }
 
 func (head Knot) drag(tail Knot) Knot {
@@ -76,23 +81,25 @@ func (head Knot) drag(tail Knot) Knot {
 }
 
 func (r *Rope) move(d Direction) {
-	var head Knot
-	if d == Up {
-		head = Knot{r.head.x, r.head.y + 1}
-	} else if d == Down {
-		head = Knot{r.head.x, r.head.y - 1}
-	} else if d == Right {
-		head = Knot{r.head.x + 1, r.head.y}
-	} else if d == Left {
-		head = Knot{r.head.x - 1, r.head.y}
+	ks := make([]Knot, len(r.knots))
+
+	switch d {
+	case Up:
+		ks[0] = Knot{r.knots[0].x, r.knots[0].y + 1}
+	case Down:
+		ks[0] = Knot{r.knots[0].x, r.knots[0].y - 1}
+	case Right:
+		ks[0] = Knot{r.knots[0].x + 1, r.knots[0].y}
+	case Left:
+		ks[0] = Knot{r.knots[0].x - 1, r.knots[0].y}
 	}
 
-	tail := head.drag(r.tail)
+	for i := 1; i < len(r.knots); i++ {
+		ks[i] = ks[i-1].drag(r.knots[i])
+	}
 
-	r.head = head
-	r.tail = tail
-	r.hist[tail] = member
-
+	r.knots = ks
+	r.hist[ks[len(ks)-1]] = member
 }
 
 func (r *Rope) GetPositions(ds []Direction) {
@@ -101,7 +108,6 @@ func (r *Rope) GetPositions(ds []Direction) {
 	}
 
 	nbrPositions := len(r.hist)
-
 	fmt.Println("Number of positions: ", nbrPositions)
 }
 
@@ -126,6 +132,9 @@ const input = "../input/9.txt"
 
 func Run() {
 	directions := ReadDirections(input)
-	r := NewRope()
+	r := NewRope(2)
+	r.GetPositions(directions)
+
+	r = NewRope(10)
 	r.GetPositions(directions)
 }
