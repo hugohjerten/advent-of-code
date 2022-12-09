@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func check(err error) {
@@ -22,5 +21,5 @@ func ReadLines(path string) []string {
 
 	content := string(fileContent)
 
-	return strings.Split(string(content), "\n")
+	return SplitStringOnNewline(content)
 }

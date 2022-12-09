@@ -63,3 +63,7 @@ func SplitStringInMiddle(str string) (string, string) {
 	middle := len(str) / 2
 	return str[:middle], str[middle:]
 }
+
+func SplitStringOnNewline(str string) []string {
+	return strings.Split(string(str), "\n")
+}

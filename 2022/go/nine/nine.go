@@ -102,17 +102,17 @@ func (r *Rope) move(d Direction) {
 	r.hist[ks[len(ks)-1]] = member
 }
 
-func (r *Rope) GetPositions(ds []Direction) {
+func (r *Rope) GetPositions(ds []Direction) int {
 	for _, d := range ds {
 		r.move(d)
 	}
 
 	nbrPositions := len(r.hist)
-	fmt.Println("Number of positions: ", nbrPositions)
+
+	return nbrPositions
 }
 
-func ReadDirections(path string) []Direction {
-	lines := utils.ReadLines(path)
+func ParseDirections(lines []string) []Direction {
 	ds := make([]Direction, 0)
 
 	for _, line := range lines {
@@ -131,10 +131,12 @@ func ReadDirections(path string) []Direction {
 const input = "../input/9.txt"
 
 func Run() {
-	directions := ReadDirections(input)
+	directions := ParseDirections(utils.ReadLines(input))
 	r := NewRope(2)
-	r.GetPositions(directions)
+	nbr := r.GetPositions(directions)
+	fmt.Println("Number of positions: ", nbr)
 
 	r = NewRope(10)
-	r.GetPositions(directions)
+	nbr = r.GetPositions(directions)
+	fmt.Println("Number of positions: ", nbr)
 }
