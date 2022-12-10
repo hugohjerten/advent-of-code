@@ -8,6 +8,7 @@ import (
 	"2022/go/one"
 	"2022/go/seven"
 	"2022/go/six"
+	"2022/go/ten"
 	"2022/go/three"
 	"2022/go/two"
 	"log"
@@ -16,15 +17,16 @@ import (
 
 var (
 	solve = map[string]func(){
-		"1": one.Run,
-		"2": two.Run,
-		"3": three.Run,
-		"4": four.Run,
-		"5": five.Run,
-		"6": six.Run,
-		"7": seven.Run,
-		"8": eight.Run,
-		"9": nine.Run,
+		"1":  one.Run,
+		"2":  two.Run,
+		"3":  three.Run,
+		"4":  four.Run,
+		"5":  five.Run,
+		"6":  six.Run,
+		"7":  seven.Run,
+		"8":  eight.Run,
+		"9":  nine.Run,
+		"10": ten.Run,
 	}
 )
 
