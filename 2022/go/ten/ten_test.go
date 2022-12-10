@@ -7,7 +7,6 @@ import (
 )
 
 func Test(t *testing.T) {
-	cycles := []int{20, 60, 100, 140, 180, 220}
 	input := `addx 15
 addx -11
 addx 6
@@ -156,8 +155,9 @@ noop
 noop`
 
 	lines := utils.SplitStringOnNewline(input)
-	cpu := ten.NewCPU(cycles)
-	got := cpu.SignalStrengths(lines)
+	vs := ten.NewVideoSystem()
+	vs.Run(lines)
+	got := vs.SignalStrength()
 	want := 13140
 
 	if got != want {

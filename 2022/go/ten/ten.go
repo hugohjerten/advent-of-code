@@ -8,48 +8,95 @@ import (
 
 const input = "../input/10.txt"
 
+var strengthCycles = []int{20, 60, 100, 140, 180, 220}
+
 type CPU struct {
 	cycle    int
-	register int
-	cs       []int
+	x        int
+	strength int
 }
 
-func NewCPU(cycles []int) CPU {
-	return CPU{0, 1, cycles}
-}
-
-func (cpu *CPU) run(c int, r int) int {
+func (cpu *CPU) exec(c int, x int) {
 	cpu.cycle += c
-	cpu.register += r
+	cpu.x += x
 
-	if utils.ContainsInt(cpu.cs, cpu.cycle) {
-		return cpu.cycle * cpu.register
+	if c != 0 && utils.ContainsInt(strengthCycles, cpu.cycle) {
+		cpu.strength += cpu.cycle * cpu.x
+	}
+}
+
+type CRT struct {
+	row    int
+	pixels [6][40]string
+}
+
+func (crt *CRT) pixel(i int, x int) {
+	p := "."
+	i -= 1
+
+	// Update row nbr (if not very first pixel)
+	if i != 0 && i%40 == 0 {
+		crt.row += 1
 	}
 
-	return 0
+	// Update row index
+	i -= (i / 40) * 40
+
+	// If x in sprite
+	if x-1 <= i && i <= x+1 {
+		p = "#"
+	}
+
+	crt.pixels[crt.row][i] = p
 }
 
-func (cpu *CPU) SignalStrengths(lines []string) int {
-	signals := 0
-	for _, l := range lines {
+type VideoSystem struct {
+	cpu CPU
+	crt CRT
+}
 
-		if l == "noop" {
-			signals += cpu.run(1, 0)
+func NewVideoSystem() VideoSystem {
+	return VideoSystem{CPU{0, 1, 0}, CRT{}}
+}
+
+func (vs *VideoSystem) add(x int) {
+	vs.cpu.exec(0, x)
+}
+
+func (vs *VideoSystem) cycle(nbr int) {
+	for i := 0; i < nbr; i++ {
+		vs.cpu.exec(1, 0)
+		vs.crt.pixel(vs.cpu.cycle, vs.cpu.x)
+	}
+}
+
+func (vs *VideoSystem) Run(instructions []string) {
+	for _, i := range instructions {
+
+		if i == "noop" {
+			vs.cycle(1)
 		} else {
-			x, _ := strconv.Atoi(utils.SplitStringOnWhitespace(l)[1])
-			signals += cpu.run(1, 0)
-			signals += cpu.run(1, 0)
-			cpu.run(0, x)
+			x, _ := strconv.Atoi(utils.SplitStringOnWhitespace(i)[1])
+			vs.cycle(2)
+			vs.add(x)
 		}
 	}
+}
 
-	return signals
+func (vs *VideoSystem) SignalStrength() int {
+	return vs.cpu.strength
+}
+
+func (vs *VideoSystem) Draw() {
+	for _, r := range vs.crt.pixels {
+		fmt.Println(r)
+	}
 }
 
 func Run() {
 	lines := utils.ReadLines(input)
-	cpu := NewCPU([]int{20, 60, 100, 140, 180, 220})
-	sum := cpu.SignalStrengths(lines)
-
-	fmt.Println("Sums: ", sum)
+	vs := NewVideoSystem()
+	vs.Run(lines)
+	fmt.Println("Sums: ", vs.SignalStrength())
+	vs.Draw()
 }
