@@ -31,7 +31,7 @@ type CRT struct {
 }
 
 func (crt *CRT) pixel(i int, x int) {
-	p := "."
+	p := " "
 	i -= 1
 
 	// Update row nbr (if not very first pixel)
@@ -44,7 +44,7 @@ func (crt *CRT) pixel(i int, x int) {
 
 	// If x in sprite
 	if x-1 <= i && i <= x+1 {
-		p = "#"
+		p = "█"
 	}
 
 	crt.pixels[crt.row][i] = p
