@@ -18,7 +18,9 @@ type Monkey struct {
 }
 
 type MonkeyInTheMiddle struct {
-	ms []Monkey
+	ms       []Monkey
+	divisors []int
+	worried  bool
 }
 
 func (mim MonkeyInTheMiddle) MonkeyBusiness() int {
@@ -35,6 +37,9 @@ func (mim MonkeyInTheMiddle) MonkeyBusiness() int {
 }
 
 func (mim *MonkeyInTheMiddle) Rounds(rounds int) {
+	// Lowest Common Multiple
+	lcm := utils.LCM(mim.divisors[0], mim.divisors[1], mim.divisors[2:]...)
+
 	// For each round
 	for r := 0; r < rounds; r++ {
 
@@ -44,13 +49,18 @@ func (mim *MonkeyInTheMiddle) Rounds(rounds int) {
 
 			// For each item
 			for _, item := range m.items {
+				mim.ms[mi].inspect += 1
 				i := item
 
-				i = m.update(i) / 3
+				i = m.update(i)
+				if !mim.worried {
+					i /= 3
+				} else {
+					i = i % lcm
+				}
+
 				idx := m.throwTo(i)
 				mim.ms[idx].items = append(mim.ms[idx].items, i)
-
-				mim.ms[mi].inspect += 1
 			}
 			mim.ms[mi].items = nil
 		}
@@ -92,7 +102,7 @@ func parseOperation(str string) func(int) int {
 	}
 }
 
-func parseTest(one string, two string, three string) func(int) int {
+func parseTestAndDivisor(one string, two string, three string) (func(int) int, int) {
 	div, _ := strconv.Atoi(strings.ReplaceAll(one, "  Test: divisible by ", ""))
 	happy, _ := strconv.Atoi(strings.ReplaceAll(two, "    If true: throw to monkey ", ""))
 	sad, _ := strconv.Atoi(strings.ReplaceAll(three, "    If false: throw to monkey ", ""))
@@ -102,23 +112,30 @@ func parseTest(one string, two string, three string) func(int) int {
 			return happy
 		}
 		return sad
-	}
+	}, div
 }
 
-func GetMonkeys(lines []string) MonkeyInTheMiddle {
+func GetMonkeys(lines []string, worried bool) MonkeyInTheMiddle {
 	slices := utils.SeparateSliceOnNewLine(lines)
 	ms := make([]Monkey, len(slices))
+	divisors := make([]int, len(slices))
 
 	for i, s := range slices {
-		ms[i] = Monkey{0, parseItems(s[1]), parseOperation(s[2]), parseTest(s[3], s[4], s[5])}
+		test, div := parseTestAndDivisor(s[3], s[4], s[5])
+		divisors[i] = div
+		ms[i] = Monkey{0, parseItems(s[1]), parseOperation(s[2]), test}
 	}
 
-	return MonkeyInTheMiddle{ms}
+	return MonkeyInTheMiddle{ms, divisors, worried}
 }
 
 func Run() {
 	lines := utils.ReadLines(input)
-	monkeys := GetMonkeys(lines)
+	monkeys := GetMonkeys(lines, false)
 	monkeys.Rounds(20)
+	fmt.Println("Monkey Business :", monkeys.MonkeyBusiness())
+
+	monkeys = GetMonkeys(lines, true)
+	monkeys.Rounds(10000)
 	fmt.Println("Monkey Business :", monkeys.MonkeyBusiness())
 }
