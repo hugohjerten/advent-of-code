@@ -9,8 +9,13 @@ func Abs(x int) int {
 	return x
 }
 
-func Distance(x1 int, y1 int, x2 int, y2 int) float64 {
-	return math.Sqrt(float64(x2-x1)*float64(x2-x1) + float64(y2-y1)*float64(y2-y1))
+type Coordinates struct {
+	X int
+	Y int
+}
+
+func Distance(p1 Coordinates, p2 Coordinates) float64 {
+	return math.Sqrt(float64(p2.X-p1.X)*float64(p2.X-p1.X) + float64(p2.Y-p1.Y)*float64(p2.Y-p1.Y))
 }
 
 // Greatest Common Divisor (GCD) via Euclidean algorithm
