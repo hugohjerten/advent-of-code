@@ -17,7 +17,28 @@ type Packet struct {
 	idx int
 }
 
-func (p Packet) sliceFrom(start int) (string, bool) {
+type Comparison int
+
+const (
+	BothInt Comparison = iota
+	BothList
+	BothEmpty
+	LeftEmpty
+	RightEmpty
+	LeftList
+	RightList
+	BothNil
+)
+
+type Order int
+
+const (
+	Right Order = iota
+	Wrong
+	Same
+)
+
+func (p Packet) nestedList(start int) string {
 	nstd := 0
 	for i := start; i < len(p.val); i++ {
 		switch p.val[i] {
@@ -28,10 +49,7 @@ func (p Packet) sliceFrom(start int) (string, bool) {
 
 			if nstd == 0 {
 				sub := p.val[start : i+1]
-				if utils.ContainsOnly(p.val[i+1:], 93) { // ']'
-					return sub, true
-				}
-				return sub, false
+				return sub
 			}
 		}
 	}
@@ -47,14 +65,10 @@ func (p *Packet) Next() (*Integer, *Packet) {
 
 	switch r {
 	case 91: // '['
-		val, last := p.sliceFrom(p.idx)
+		val := p.nestedList(p.idx)
 
-		if last {
-			return nil, &Packet{val, 1}
-		}
-
-		p.idx += 1
-		return nil, p
+		p.idx += len(val)
+		return nil, &Packet{val, 1}
 
 	case 93: // ']'
 		p.idx += 1
@@ -66,14 +80,19 @@ func (p *Packet) Next() (*Integer, *Packet) {
 
 	default:
 		var val int
-		// i.e. if value is two digits, next digit is between 0<9
-		if r >= 48 && r <= 57 {
-			val, _ = strconv.Atoi(p.val[p.idx : p.idx+1])
+		next := p.val[p.idx+1]
+
+		if next >= 48 && next <= 57 {
+			// i.e. if value is two digits, next digit is between 0<9
+			val, _ = strconv.Atoi(p.val[p.idx : p.idx+2])
 			p.idx += 2
+
 		} else {
+			// i.e. value is one digit long
 			val, _ = strconv.Atoi(string(r))
 			p.idx += 1
 		}
+
 		return &Integer{val}, nil
 	}
 
@@ -84,98 +103,106 @@ type Pair struct {
 	r Packet
 }
 
-func Listify(i int) string {
-	return "[" + strconv.Itoa(i) + "]"
+func ToPacket(i int) Packet {
+	return Packet{("[" + strconv.Itoa(i) + "]"), 1}
 }
 
-func IsEmpty(p *Packet) bool {
-	return p == nil || p.val == "[]"
+func (p Packet) IsEmpty() bool {
+	return p.val == "[]"
 }
 
-func compare(p Pair) bool {
-	fmt.Println("Left: ", p.l.val)
-	fmt.Println("Right: ", p.r.val)
+func determineComparison(li *Integer, ri *Integer, lp *Packet, rp *Packet) Comparison {
+	if li != nil && ri != nil {
+		return BothInt
+	}
 
-	// cnt := 0
+	if lp != nil && rp != nil {
+		if lp.IsEmpty() && rp.IsEmpty() {
+			return BothEmpty
+		}
+		if lp.IsEmpty() {
+			return LeftEmpty
+		}
+		if rp.IsEmpty() {
+			return RightEmpty
+		}
+		return BothList
+	}
 
+	if li == nil && lp == nil && ri == nil && rp == nil {
+		return BothNil
+	}
+
+	if li == nil && lp == nil {
+		return LeftEmpty
+	}
+
+	if ri == nil && rp == nil {
+		return RightEmpty
+	}
+
+	if lp != nil && ri != nil {
+		return LeftList
+	}
+
+	if li != nil && rp != nil {
+		return RightList
+	}
+
+	panic("Can't determine comparison.")
+}
+
+func (p *Pair) compare() Order {
 	for {
-		leftInt, leftPacket := p.l.Next()
-		rightInt, rightPacket := p.r.Next()
+		li, lp := p.l.Next()
+		ri, rp := p.r.Next()
 
-		// If both left and right run out of items
-		if leftInt == nil && IsEmpty(leftPacket) &&
-			rightInt == nil && IsEmpty(rightPacket) {
-			fmt.Println("Both left and right have run out of items.")
-			return true
-		}
-
-		// If left is list, but right is empty
-		if leftPacket != nil && IsEmpty(rightPacket) && rightInt == nil {
-			fmt.Println("Left list, right empty.")
-			return false
-		}
-
-		// If left is empty, but right is list
-		if IsEmpty(leftPacket) && leftInt == nil && rightPacket != nil {
-			fmt.Println("Left empty, right list.")
-			return true
-		}
-
-		// If both int
-		if leftInt != nil && rightInt != nil {
-			fmt.Println("Both are int.")
-			if leftInt.val > rightInt.val {
-				return false
+		switch determineComparison(li, ri, lp, rp) {
+		case BothInt:
+			if li.val > ri.val {
+				return Wrong
+			} else if li.val < ri.val {
+				return Right
 			}
-			continue
-		}
-
-		// If both lists
-		if leftPacket != nil && rightPacket != nil {
-			fmt.Println("Both are lists.")
-			if !compare(Pair{*leftPacket, *rightPacket}) {
-				return false
+		case BothList:
+			nested := Pair{*lp, *rp}
+			order := nested.compare()
+			if order == Right || order == Wrong {
+				return order
 			}
-			continue
-		}
 
-		// If left is int, but right is list
-		if leftInt != nil && rightPacket != nil {
-			packed := Packet{Listify(leftInt.val), 1}
-			fmt.Println("Left int, right list.")
-			fmt.Println("Packed: ", packed.val)
-			fmt.Println("right", rightPacket.val)
+		case BothNil:
+			return Same
+		case LeftEmpty:
+			return Right
+		case RightEmpty:
+			return Wrong
 
-			if !compare(Pair{packed, *rightPacket}) {
-				return false
+		case LeftList:
+			cnvrtd := ToPacket(ri.val)
+			nested := Pair{*lp, cnvrtd}
+			order := nested.compare()
+			if order == Right || order == Wrong {
+				return order
+			}
+
+		case RightList:
+			cnvrtd := ToPacket(li.val)
+			nested := Pair{cnvrtd, *rp}
+			order := nested.compare()
+			if order == Right || order == Wrong {
+				return order
 			}
 		}
-
-		// If left is list, but right is int
-		if leftPacket != nil && rightInt != nil {
-			packed := Packet{Listify(rightInt.val), 1}
-			fmt.Println("Left list, right int.")
-			fmt.Println("left", leftPacket.val)
-			fmt.Println("Packed: ", packed.val)
-
-			// os.Exit(2)
-			if !compare(Pair{*leftPacket, packed}) {
-				return false
-			}
-		}
-
 	}
 }
 
 func ComparePairs(pairs []Pair) {
 	sum := 0
 	for i, p := range pairs {
-		fmt.Println("Pair #", i)
-		if compare(p) {
-			fmt.Println("Is in right order.")
-			sum += i
+		if p.compare() == Right {
+			sum += i + 1
 		}
-		// os.Exit(1)
 	}
 
 	fmt.Println("Sum of indices: ", sum)
