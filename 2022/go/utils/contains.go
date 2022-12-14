@@ -17,3 +17,13 @@ func ContainsOnly(ss string, r rune) bool {
 	}
 	return true
 }
+
+func RemoveEmptyLines(lines []string) []string {
+	cleaned := make([]string, 0, len(lines))
+	for _, l := range lines {
+		if l != "" {
+			cleaned = append(cleaned, l)
+		}
+	}
+	return cleaned
+}

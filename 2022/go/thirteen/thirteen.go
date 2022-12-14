@@ -3,6 +3,7 @@ package thirteen
 import (
 	"2022/go/utils"
 	"fmt"
+	"sort"
 	"strconv"
 )
 
@@ -218,7 +219,37 @@ func ParsePairs(input string) []Pair {
 	return pairs
 }
 
+func ParsePackets(input string) []Packet {
+	lines := utils.RemoveEmptyLines(utils.ReadLines(input))
+	ps := make([]Packet, len(lines))
+	for i, l := range lines {
+		ps[i] = Packet{l, 1}
+	}
+
+	ps = append(ps, []Packet{{"[[2]]", 1}, {"[[6]]", 1}}...)
+	return ps
+}
+
+func DecoderKey(ps []Packet) {
+	sort.Slice(ps, func(i, j int) bool {
+		pair := Pair{ps[i], ps[j]}
+		return pair.compare() == Right
+	})
+
+	prod := 1
+	for i, p := range ps {
+		if p.val == "[[2]]" || p.val == "[[6]]" {
+			prod *= (i + 1)
+		}
+	}
+	fmt.Println("DecoderKey: ", prod)
+}
+
 func Run() {
 	pairs := ParsePairs(input)
 	ComparePairs(pairs)
+
+	packets := ParsePackets(input)
+	DecoderKey(packets)
+
 }
