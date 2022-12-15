@@ -8,12 +8,16 @@ import (
 
 const input = "../input/14.txt"
 
+var source = Coord{500, 0}
+
 type State int
 
 const (
 	Blocked State = iota
 	Falling
 	OutOfBounds
+	ExpandLeft
+	ExpandRight
 )
 
 type Coord struct {
@@ -24,11 +28,12 @@ type Coord struct {
 type Path = []Coord
 
 type Cave struct {
-	m      [][]rune
-	w      int
-	h      int
-	offset int
-	source Coord
+	m        [][]rune
+	w        int
+	h        int
+	offset   int
+	source   Coord
+	voidless bool
 }
 
 func (c Cave) Show() {
@@ -44,13 +49,52 @@ func (s *Cave) addPath(p Path) {
 }
 
 func (c *Cave) check(s Coord) State {
-	if s.x < 0 || s.x > c.w || s.y < 0 || s.y > c.h {
+	if s.y >= c.h {
 		return OutOfBounds
 	}
-	if c.m[s.y][s.x] == 46 { // "."
+	if c.voidless && (s.x < 0 || s.x > c.w) {
+		return OutOfBounds
+	}
+	if !c.voidless && s.y == c.h-1 {
+		return Blocked
+	}
+	if !c.voidless && s.x < 0 && s.y < c.h {
+		return ExpandLeft
+	}
+	if !c.voidless && s.x >= c.w && s.y < c.h {
+		return ExpandRight
+	}
+	if c.m[s.y][s.x] == 32 { // " "
 		return Falling
 	}
 	return Blocked
+}
+
+func (c *Cave) expandLeft() {
+	for i, row := range c.m {
+		var r rune
+		if i < c.h-1 {
+			r = 32 // " "
+		} else {
+			r = 35 // "#"
+		}
+		c.m[i] = append([]rune{r}, row...)
+	}
+	c.w += 1
+	c.source.x += 1
+}
+
+func (c *Cave) expandRight() {
+	for i, row := range c.m {
+		var r rune
+		if i < c.h-1 {
+			r = 32 // " "
+		} else {
+			r = 35 // "#"
+		}
+		c.m[i] = append(row, r)
+	}
+	c.w += 1
 }
 
 func (c *Cave) fall(s Coord) (Coord, State) {
@@ -63,18 +107,24 @@ func (c *Cave) fall(s Coord) (Coord, State) {
 			return c.fall(f)
 		case OutOfBounds:
 			return s, OutOfBounds
+		case ExpandLeft:
+			c.expandLeft()
+			return c.fall(Coord{f.x + 1, f.y})
+		case ExpandRight:
+			c.expandRight()
+			return c.fall(f)
 		}
 	}
 	return s, Blocked
 }
 
-func (c *Cave) Simulate() {
+func (c *Cave) Simulate(show bool) {
 	cnt := 0
-	abyss := false
+	stop := false
 
 	// New unit of sand for each loop
 	for {
-		if abyss {
+		if stop {
 			break
 		}
 
@@ -83,12 +133,17 @@ func (c *Cave) Simulate() {
 		case Blocked:
 			c.m[n.y][n.x] = 111 // "o"
 			cnt += 1
+			if n == c.source {
+				stop = true
+			}
 		case OutOfBounds:
-			abyss = true
+			stop = true
 		}
 	}
 
-	c.Show()
+	if show {
+		c.Show()
+	}
 	fmt.Println("Units of sand: ", cnt)
 }
 
@@ -99,6 +154,13 @@ func (c *Cave) addPaths(paths []Path) {
 	for _, cs := range paths {
 		for i := 0; i < len(cs)-1; i++ {
 			c.addPath(getRockPath(cs[i], cs[i+1], c.offset))
+		}
+	}
+
+	// Add floor
+	if !c.voidless {
+		for x := 0; x < c.w; x++ {
+			c.m[c.h-1][x] = 35 // "#"
 		}
 	}
 }
@@ -150,7 +212,7 @@ func minMax(old [2]int, n int) [2]int {
 	return old
 }
 
-func FetchCave(input string, source Coord) Cave {
+func FetchCave(input string, voidless bool) Cave {
 	lines := utils.ReadLines(input)
 	paths := make([]Path, len(lines))
 
@@ -175,21 +237,28 @@ func FetchCave(input string, source Coord) Cave {
 	w := xEdges[1] - xEdges[0] + 1
 	h := yEdges[1] - yEdges[0] + 1
 
+	if !voidless {
+		h += 2
+	}
+
 	m := make([][]rune, h)
 	for i := range m {
 		m[i] = make([]rune, w)
 		for j := 0; j < w; j++ {
-			m[i][j] = 46 // "."
+			m[i][j] = 32 // " "
 		}
 	}
 
 	offset := xEdges[0]
-	cave := Cave{m, w, h, offset, Coord{source.x - offset, source.y}}
+	cave := Cave{m, w, h, offset, Coord{source.x - offset, source.y}, voidless}
 	cave.addPaths(paths)
 	return cave
 }
 
 func Run() {
-	cave := FetchCave(input, Coord{500, 0})
-	cave.Simulate()
+	cave := FetchCave(input, true)
+	cave.Simulate(false)
+
+	cave = FetchCave(input, false)
+	cave.Simulate(false)
 }
