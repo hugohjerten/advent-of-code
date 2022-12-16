@@ -57,7 +57,7 @@ func (head Knot) drag(tail Knot) Knot {
 	x := tail.x
 	y := tail.y
 
-	dist := utils.Distance(x, y, head.x, head.y)
+	dist := utils.EuclidianDistance(x, y, head.x, head.y)
 
 	if dist > 1 {
 		if utils.Abs(head.x-x) > 1 || dist > math.Sqrt(2) {
