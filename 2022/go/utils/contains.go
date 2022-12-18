@@ -9,6 +9,15 @@ func ContainsInt(s []int, e int) bool {
 	return false
 }
 
+func ContainsStr(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 func ContainsOnly(ss string, r rune) bool {
 	for _, e := range ss {
 		if e != r {
@@ -26,4 +35,10 @@ func RemoveEmptyLines(lines []string) []string {
 		}
 	}
 	return cleaned
+}
+
+func CopyStringList(lst []string) []string {
+	c := make([]string, len(lst))
+	copy(c, lst)
+	return c
 }
