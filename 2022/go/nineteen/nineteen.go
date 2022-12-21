@@ -7,7 +7,8 @@ import (
 )
 
 const input = "../input/19.txt"
-const maxTime = 24
+const maxPart1 = 24
+const maxPart2 = 32
 
 func ParseInput() []Blueprint {
 	lines := utils.ReadLines(input)
@@ -24,7 +25,7 @@ func ParseInput() []Blueprint {
 		l = strings.ReplaceAll(l, " obsidian.", "")
 		split := utils.Intify(utils.SplitStringOn(l, ","))
 
-		max := Types{0, 0, 0, 0}
+		max := Types2{0, 0, 0}
 
 		if split[1] > max.or {
 			max.or = split[1]
@@ -47,10 +48,10 @@ func ParseInput() []Blueprint {
 
 		bps[i] = Blueprint{
 			split[0],
-			Types{split[1], 0, 0, 0},
-			Types{split[2], 0, 0, 0},
-			Types{split[3], split[4], 0, 0},
-			Types{split[5], 0, split[6], 0},
+			Types2{split[1], 0, 0},
+			Types2{split[2], 0, 0},
+			Types2{split[3], split[4], 0},
+			Types2{split[5], 0, split[6]},
 			max,
 		}
 	}
@@ -65,13 +66,19 @@ type Types struct {
 	ge int // geode
 }
 
+type Types2 struct {
+	or int // ore
+	cl int // clay
+	ob int // obsidian
+}
+
 type Blueprint struct {
 	id  int
-	or  Types // ore
-	cl  Types // clay
-	ob  Types // obsidian
-	ge  Types // geode
-	max Types // max resource needed for a robot to be built
+	or  Types2 // ore
+	cl  Types2 // clay
+	ob  Types2 // obsidian
+	ge  Types2 // geode
+	max Types2 // max resource needed for a robot to be built
 }
 
 type State struct {
@@ -80,10 +87,22 @@ type State struct {
 	re Types // resources
 }
 
+type Key struct {
+	m  int
+	ro Types
+	re Types2
+}
+
 func (s State) copy() State {
 	ro := Types{s.ro.or, s.ro.cl, s.ro.ob, s.ro.ge}
 	re := Types{s.re.or, s.re.cl, s.re.ob, s.re.ge}
 	return State{s.m, ro, re}
+}
+
+func (s State) toKey() Key {
+	ro := Types{s.ro.or, s.ro.cl, s.ro.ob, s.ro.ge}
+	re := Types2{s.re.or, s.re.cl, s.re.ob}
+	return Key{s.m, ro, re}
 }
 
 func (s *State) produce() {
@@ -94,10 +113,20 @@ func (s *State) produce() {
 	s.re.ge += s.ro.ge
 }
 
-func (bp Blueprint) GetMax() int {
+func (s State) oneGeodeRobotPerMinute(maxMinutes int) int {
+	geodes := s.re.ge
+	geodeRobots := s.ro.ge
+	for m := s.m; m <= maxMinutes; m++ {
+		geodes += geodeRobots
+		geodeRobots += 1
+	}
+	return geodes
+}
+
+func (bp Blueprint) GetMax(minutes int) int {
 	// BFS
 	queue := []State{{0, Types{1, 0, 0, 0}, Types{0, 0, 0, 0}}}
-	cache := map[State]int{}
+	cache := map[Key]int{}
 	max := 0
 	for {
 		if len(queue) == 0 {
@@ -107,20 +136,36 @@ func (bp Blueprint) GetMax() int {
 		// pop
 		st := queue[0]
 		queue = queue[1:]
+		k := st.toKey()
 
 		// update cache
-		geodes, seen := cache[st]
+		geodes, seen := cache[k]
 
 		if seen && geodes >= st.re.ge {
 			continue
 		}
-		cache[st] = st.re.ge
+		cache[k] = st.re.ge
 
 		// Limit reached
-		if st.m == maxTime {
+		if st.m == minutes {
 			if st.re.ge > max {
 				max = st.re.ge
 			}
+			continue
+		}
+
+		// With optimistic nbr geode robots
+		geodes = st.oneGeodeRobotPerMinute(minutes)
+
+		// If geode robot can be produced every minute, optimistic is true :raised_hands:
+		if st.ro.or == bp.ge.or && st.ro.ob == bp.ge.ob {
+			if geodes > max {
+				max = geodes
+			}
+		}
+
+		// If optimistic is worse than current max, abandon
+		if geodes < max {
 			continue
 		}
 
@@ -162,10 +207,17 @@ func (bp Blueprint) GetMax() int {
 			queue = append(queue, new)
 		}
 
+		// missing resource, but have robot producing it.
+		oreMissing := st.re.or < bp.or.or || st.re.or < bp.cl.or || st.re.or < bp.ob.or || st.re.or < bp.ge.or
+		clayMissing := st.re.cl < bp.ob.cl && st.ro.cl > 0
+		obsidianMissing := st.re.ob < bp.ge.ob && st.ro.ob > 0
+
 		// Build no robots
-		new := st.copy()
-		new.produce()
-		queue = append(queue, new)
+		if oreMissing || clayMissing || obsidianMissing {
+			new := st.copy()
+			new.produce()
+			queue = append(queue, new)
+		}
 
 	}
 	return max
@@ -174,14 +226,23 @@ func (bp Blueprint) GetMax() int {
 func QualityLevels(bps []Blueprint) {
 	sum := 0
 	for _, bp := range bps {
-		max := bp.GetMax()
+		max := bp.GetMax(maxPart1)
 		sum += bp.id * max
 	}
-
 	fmt.Println("Quality Level: ", sum)
+}
+
+func MaximumGeodes(bps []Blueprint) {
+	prod := 1
+	for _, bp := range bps {
+		max := bp.GetMax(maxPart2)
+		prod *= max
+	}
+	fmt.Println("Maximum product: ", prod)
 }
 
 func Run() {
 	bps := ParseInput()
 	QualityLevels(bps)
+	MaximumGeodes(bps[:3])
 }
