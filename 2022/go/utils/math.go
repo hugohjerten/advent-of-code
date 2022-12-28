@@ -37,3 +37,15 @@ func LCM(a int, b int, integers ...int) int {
 
 	return result
 }
+
+// Return arithmetic operation from string
+func ArithmeticOperation(op string) func(int, int) int {
+	ops := map[string]func(int, int) int{
+		"+": func(a, b int) int { return a + b },
+		"-": func(a, b int) int { return a - b },
+		"*": func(a, b int) int { return a * b },
+		"/": func(a, b int) int { return a / b },
+	}
+
+	return ops[op]
+}
