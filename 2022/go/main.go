@@ -19,6 +19,7 @@ import (
 	"2022/go/thirteen"
 	"2022/go/three"
 	"2022/go/twelve"
+	"2022/go/twenty"
 	"2022/go/two"
 	"log"
 	"os"
@@ -45,6 +46,7 @@ var (
 		"17": seventeen.Run,
 		"18": eighteen.Run,
 		"19": nineteen.Run,
+		"20": twenty.Run,
 	}
 )
 
