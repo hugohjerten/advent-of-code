@@ -8,10 +8,24 @@ import (
 
 const input = "../input/21.txt"
 
+const root = "root"
+
 type Monkey struct {
-	val     int                                  // value
-	waiting bool                                 // waiting for other monkeys
-	job     func(map[string]*Monkey) (int, bool) // math operation.
+	name    string
+	val     int  // value
+	waiting bool // waiting for other monkeys
+	left    string
+	right   string
+	op      string
+}
+
+// Math operation for given monkey. Return false if dependent monkey aren't ready
+func (m Monkey) job(ms map[string]*Monkey) (int, bool) {
+	l, r := ms[m.left], ms[m.right]
+	if l.waiting || r.waiting {
+		return 0, false
+	}
+	return utils.ArithmeticOperation(m.op)(l.val, r.val), true
 }
 
 func ParseInput() (map[string]*Monkey, []*Monkey) {
@@ -21,28 +35,15 @@ func ParseInput() (map[string]*Monkey, []*Monkey) {
 
 	for _, l := range lines {
 		split := utils.SplitStringOn(l, ": ")
-		name := split[0]
-
-		rightSplit := utils.SplitStringOnWhitespace(split[1])
+		name, rightSplit := split[0], utils.SplitStringOnWhitespace(split[1])
 
 		if len(rightSplit) == 1 {
 			nbr, _ := strconv.Atoi(rightSplit[0])
-			monkeys[name] = &Monkey{nbr, false, nil}
+			monkeys[name] = &Monkey{name, nbr, false, "", "", ""}
 
 		} else {
-			l := rightSplit[0]
-			op := utils.ArithmeticOperation(rightSplit[1])
-			r := rightSplit[2]
-
-			// Math operation for given monkey. Return false if dependent monkey aren't ready
-			monkeys[name] = &Monkey{0, true, func(ms map[string]*Monkey) (int, bool) {
-				left, right := ms[l], ms[r]
-				if left.waiting || right.waiting {
-					return 0, false
-				}
-				return op(left.val, right.val), true
-			}}
-
+			left, op, right := rightSplit[0], rightSplit[1], rightSplit[2]
+			monkeys[name] = &Monkey{name, 0, true, left, right, op}
 			queue = append(queue, monkeys[name])
 		}
 	}
@@ -50,7 +51,7 @@ func ParseInput() (map[string]*Monkey, []*Monkey) {
 	return monkeys, queue
 }
 
-func MonkeyShout(final string, ms map[string]*Monkey, queue []*Monkey) {
+func MonkeyShout(ms map[string]*Monkey, queue []*Monkey) {
 	for {
 		if len(queue) == 0 {
 			// All monkeys are calculated
@@ -76,10 +77,10 @@ func MonkeyShout(final string, ms map[string]*Monkey, queue []*Monkey) {
 		}
 	}
 
-	fmt.Println("Shouts: ", ms[final].val)
+	fmt.Println("Shouts: ", ms[root].val)
 }
 
 func Run() {
 	monkeys, queue := ParseInput()
-	MonkeyShout("root", monkeys, queue)
+	MonkeyShout(monkeys, queue)
 }
