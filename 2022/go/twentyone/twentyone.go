@@ -9,6 +9,7 @@ import (
 const input = "../input/21.txt"
 
 const root = "root"
+const humn = "humn"
 
 type Monkey struct {
 	name    string
@@ -80,7 +81,81 @@ func MonkeyShout(ms map[string]*Monkey, queue []*Monkey) {
 	fmt.Println("Shouts: ", ms[root].val)
 }
 
+func dependentOnHumn(name string, ms map[string]*Monkey, dependent []string) (bool, []string) {
+	m := ms[name]
+
+	if m.name == humn {
+		return true, dependent
+	} else if m.op == "" {
+		return false, dependent
+	}
+	leftDep, dependent := dependentOnHumn(m.left, ms, dependent)
+	rightDep, dependent := dependentOnHumn(m.right, ms, dependent)
+
+	if leftDep || rightDep {
+		dependent = append(dependent, m.name)
+		return true, dependent
+	}
+	return false, dependent
+}
+
+func backtrack(x int, m *Monkey, ms map[string]*Monkey, dependent []string) int {
+	left, right := ms[m.left], ms[m.right]
+
+	if (!utils.ContainsStr(dependent, left.name) || left.op == "" || right.name == humn) &&
+		left.name != humn {
+		switch m.op {
+		case "+":
+			x = x - left.val
+		case "-":
+			x = (x - left.val) * -1
+		case "*":
+			x = x / left.val
+		case "/":
+			x = left.val / x
+		}
+		if right.name == humn {
+			return x
+		}
+		return backtrack(x, right, ms, dependent)
+	}
+
+	// If not left, go with right
+	switch m.op {
+	case "+":
+		x = x - right.val
+	case "-":
+		x = (x + right.val)
+	case "*":
+		x = x / right.val
+	case "/":
+		x = x * right.val
+	}
+	if left.name == humn {
+		return x
+	}
+	return backtrack(x, left, ms, dependent)
+}
+
+func Part2(ms map[string]*Monkey) {
+	// Assume that only one of "root"s branches depends on humn
+	var m *Monkey
+	var x int
+	left, dependent := dependentOnHumn(ms[root].left, ms, []string{})
+	if left {
+		m = ms[ms[root].left]
+		x = ms[ms[root].right].val
+	} else {
+		m = ms[ms[root].right]
+		x = ms[ms[root].left].val
+	}
+	x = backtrack(x, m, ms, dependent)
+	fmt.Println("humn: ", x)
+
+}
+
 func Run() {
 	monkeys, queue := ParseInput()
 	MonkeyShout(monkeys, queue)
+	Part2(monkeys)
 }
