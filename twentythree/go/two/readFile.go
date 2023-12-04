@@ -1,8 +1,8 @@
 package two
 
 import (
-	"2023/go/utils"
 	"strings"
+	"twentythree/go/utils"
 )
 
 const input = "../input/2.txt"

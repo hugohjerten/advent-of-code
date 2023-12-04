@@ -2,5 +2,5 @@ go 1.21.4
 
 use (
 	./2022/go
-	./2023/go
+	./twentythree/go
 )

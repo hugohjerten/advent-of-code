@@ -3,6 +3,9 @@ name = "aoc"
 version = "0.1.0"
 description = "Advent of code."
 authors = []
+packages = [
+    { include = "twentythree/py" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"

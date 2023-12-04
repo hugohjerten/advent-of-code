@@ -1,11 +1,11 @@
 package main
 
 import (
-	"2023/go/one"
-	"2023/go/three"
-	"2023/go/two"
 	"log"
 	"os"
+	"twentythree/go/one"
+	"twentythree/go/three"
+	"twentythree/go/two"
 )
 
 var (

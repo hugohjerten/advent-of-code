@@ -1,7 +1,7 @@
 package three
 
 import (
-	"2023/go/utils"
+	"twentythree/go/utils"
 	"unicode"
 )
 
