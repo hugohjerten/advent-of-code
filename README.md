@@ -1,7 +1,20 @@
 # Advent of Code
+[Avent of Code](https://adventofcode.com)
+
+## 2023
+2023 started as the year of golang!
+But I don't have time to tackle a language I don't know so well.
+To finish the assignments, I will switch to python again...
+
+```sh
+poetry install
+
+# Eg. run day #4
+poetry run python 2023/py/four/main.py
+```
 
 ## 2022
-2022 [Avent of Code](https://adventofcode.com/2022) is the year of golang!
+2022 is the year of golang!
 (And maybe Rust??).
 
 Check out [2022/go/README.md](./2022/go/README.md) for instructions on how to run the code,

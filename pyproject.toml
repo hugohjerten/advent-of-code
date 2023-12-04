@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "aoc"
+version = "0.1.0"
+description = "Advent of code."
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.261"
+mypy = "^1.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py312"
+select = [
+    "F",
+    "E",
+    "C90",
+    "I",
+    "D",
+    "Q",
+    "PL",
+    "UP",
+    "S",
+    "A",
+    "RSE",
+    "PTH",
+    "ARG",
+    "RET",
+    "G",
+    "ICN",
+]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.pylint]
+max-args = 6
