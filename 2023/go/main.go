@@ -2,6 +2,7 @@ package main
 
 import (
 	"2023/go/one"
+	"2023/go/two"
 	"log"
 	"os"
 )
@@ -9,6 +10,7 @@ import (
 var (
 	solve = map[string]func(){
 		"1": one.Run,
+		"2": two.Run,
 	}
 )
 
