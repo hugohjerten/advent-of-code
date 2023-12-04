@@ -23,7 +23,13 @@ func parseInput() Schematic {
 
 				if !previousDigit {
 					// If previous character was not digit, add to nbrs
-					nbrs = append(nbrs, PartNumber{value: int(r - '0'), adjacent: false})
+					nbrs = append(nbrs, PartNumber{
+						value:          int(r - '0'),
+						adjacent:       false,
+						symbol:         false,
+						gear:           false,
+						adjacentValues: map[int]struct{}{},
+					})
 
 				} else {
 					// If previous was digit also, update value in nbrs
@@ -40,8 +46,25 @@ func parseInput() Schematic {
 				mx[i][j] = -1
 				previousDigit = false
 			} else {
-				// If character is "symbol", add "-2"
-				mx[i][j] = -2
+				// If character is "symbol"
+				gear := false
+
+				// If symbol is gear, i.e. "*"
+				if r == 42 {
+					gear = true
+				}
+
+				nbrs = append(nbrs, PartNumber{
+					value:          int(r - '0'),
+					adjacent:       false,
+					symbol:         true,
+					gear:           gear,
+					adjacentValues: map[int]struct{}{},
+				})
+
+				// Add index reference to nbrs
+				mx[i][j] = len(nbrs) - 1
+
 				previousDigit = false
 			}
 		}
