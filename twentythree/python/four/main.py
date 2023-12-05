@@ -1,4 +1,5 @@
 """Four."""
+from collections import Counter
 from pathlib import Path
 
 from ..utils.parse import read_file
@@ -22,7 +23,7 @@ def parse_input(lines: list[str]) -> list[Card]:
     return cards
 
 
-def calculate(cards: list[Card]):
+def part_1(cards: list[Card]):
     """Calculate worth of cards."""
     worth = 0
     for card in cards:
@@ -34,7 +35,27 @@ def calculate(cards: list[Card]):
     print("Part 1: ", worth)
 
 
+def part_2(cards: list[Card]):
+    """Calculate number of copies."""
+    count = Counter()
+    # Iterate cards
+    for i, card in enumerate(cards):
+        matching = len([nbr for nbr in card[1] if nbr in card[0]])
+
+        # Add one copy
+        count.update([i])
+
+        # For each copy
+        for _ in range(count.get(i)):
+            # Add copies of "matching" number of next cards
+            for j in range(i + 1, i + matching + 1):
+                count.update([j])
+
+    print("Part 2: ", count.total())
+
+
 def main():
     """Main."""
     cards = parse_input(read_file(path))
-    calculate(cards)
+    part_1(cards)
+    part_2(cards)
