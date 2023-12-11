@@ -34,6 +34,19 @@ def part_1():
     print("Part 1: ", product)
 
 
+def part_2():
+    """Part 2."""
+    lines = read_file(path)
+    race = (
+        int(lines[0].replace(" ", "").split(":")[1]),
+        int(lines[1].replace(" ", "").split(":")[1]),
+    )
+    ways_to_win = get_ways_to_win(race)
+
+    print("Part 2: ", ways_to_win)
+
+
 def main():
     """Main."""
     part_1()
+    part_2()
