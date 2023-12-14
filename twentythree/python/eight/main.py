@@ -1,4 +1,6 @@
 """Eight."""
+import math
+from itertools import cycle
 from pathlib import Path
 from typing import NamedTuple
 
@@ -54,6 +56,29 @@ def part_1():
     print("Part 1: ", cnt)
 
 
+def part_2():
+    """Part 2."""
+    network, directions = parse_input()
+    nodes = [node for node in network if node[2] == "A"]
+
+    cycles = []
+    for node in nodes:
+        current = node
+
+        for steps, d in enumerate(cycle(directions), start=1):
+            if d == "R":
+                current = network[current].right
+            else:
+                current = network[current].left
+
+            if current[2] == "Z":
+                cycles.append(steps)
+                break
+
+    print("Part 2: ", math.lcm(*cycles))
+
+
 def main():
     """Main."""
     part_1()
+    part_2()
