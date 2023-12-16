@@ -12,7 +12,7 @@ Coordinates = tuple[int, int]
 Pair = tuple[Coordinates, Coordinates]
 
 
-def parse_input() -> list[Coordinates]:
+def parse_input_part_1() -> list[Coordinates]:
     """Parse input."""
     image = read_file(path)
     rows = [r for r, row in enumerate(image) if "#" not in row]
@@ -40,7 +40,7 @@ def parse_input() -> list[Coordinates]:
 
 def part_1():
     """Part 1."""
-    galaxies = parse_input()
+    galaxies = parse_input_part_1()
 
     # Manhatten distances
     distances = [
@@ -51,6 +51,47 @@ def part_1():
     print("Part 1: ", sum(distances))
 
 
+def parse_input_part_2() -> tuple[list[Coordinates], list[int], list[int]]:
+    """Parse input."""
+    image = read_file(path)
+    empty_rows = [r for r, row in enumerate(image) if "#" not in row]
+    empty_cols = []
+    for c in range(len(image[0])):
+        if all(image[r][c] == "." for r in range(len(image))):
+            empty_cols.append(c)
+
+    galaxies = [
+        Coordinates((y, x))
+        for y in range(len(image))
+        for x in range(len(image[0]))
+        if image[y][x] == "#"
+    ]
+
+    return galaxies, empty_rows, empty_cols
+
+
+def part_2():
+    """Part 2."""
+    galaxies, empty_rows, empty_cols = parse_input_part_2()
+
+    # Manhatten distances
+    distances: list[int] = []
+    for g1, g2 in itertools.combinations(galaxies, 2):
+        min_y, max_y = min(g1[0], g2[0]), max(g1[0], g2[0])
+        min_x, max_x = min(g1[1], g2[1]), max(g1[1], g2[1])
+
+        # Add extra distance for each empty row and column
+        extra_rows = len([r for r in empty_rows if min_y < r < max_y]) * (1000000 - 1)
+        extra_cols = len([c for c in empty_cols if min_x < c < max_x]) * (1000000 - 1)
+
+        distances.append(
+            abs(g1[0] - g2[0]) + extra_rows + abs(g1[1] - g2[1]) + extra_cols
+        )
+
+    print("Part 2: ", sum(distances))
+
+
 def main():
     """Main."""
     part_1()
+    part_2()
