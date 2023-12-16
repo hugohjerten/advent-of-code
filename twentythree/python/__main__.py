@@ -2,6 +2,7 @@
 import sys
 
 from twentythree.python.eight import main as eight
+from twentythree.python.eleven import main as eleven
 from twentythree.python.five import main as five
 from twentythree.python.four import main as four
 from twentythree.python.nine import main as nine
@@ -17,6 +18,7 @@ DAYS = {
     8: eight.main,
     9: nine.main,
     10: ten.main,
+    11: eleven.main,
 }
 
 if __name__ == "__main__":
