@@ -42,9 +42,9 @@ DIRECTION = {
 }
 
 
-def traverse(grid: Grid) -> Grid:
+def traverse(grid: Grid, start: Beam) -> Grid:
     """Traverse."""
-    nexts: list[Beam] = [Beam((0, 0), "E")]
+    nexts: list[Beam] = [start]
     energised = [[0 for _ in range(len(grid[0]))] for _ in range(len(grid))]
     processed: set[Beam] = set()
 
@@ -81,12 +81,26 @@ def traverse(grid: Grid) -> Grid:
 def part_1():
     """Part 1."""
     grid = parse_input()
-    energised = traverse(grid)
+    energised = traverse(grid, Beam((0, 0), "E"))
 
     total = sum([sum(row) for row in energised])
     print("Part 1: ", total)
 
 
+def part_2():
+    """Part 2."""
+    grid = parse_input()
+    totals = set()
+    for row in range(len(grid)):
+        totals.add(sum([sum(row) for row in traverse(grid, Beam((row, 0), "E"))]))
+        totals.add(sum([sum(row) for row in traverse(grid, Beam((row, -1), "W"))]))
+    for col in range(len(grid[0])):
+        totals.add(sum([sum(row) for row in traverse(grid, Beam((0, col), "S"))]))
+        totals.add(sum([sum(row) for row in traverse(grid, Beam((-1, col), "N"))]))
+    print("Part 2: ", max(totals))
+
+
 def main():
     """Main."""
     part_1()
+    part_2()
