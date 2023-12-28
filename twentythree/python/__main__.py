@@ -10,6 +10,7 @@ from twentythree.python.fourteen import main as fourteen
 from twentythree.python.nine import main as nine
 from twentythree.python.seven import main as seven
 from twentythree.python.six import main as six
+from twentythree.python.sixteen import main as sixteen
 from twentythree.python.ten import main as ten
 from twentythree.python.thirteen import main as thirteen
 from twentythree.python.twelve import main as twelve
@@ -27,6 +28,7 @@ DAYS = {
     13: thirteen.main,
     14: fourteen.main,
     15: fifteen.main,
+    16: sixteen.main,
 }
 
 if __name__ == "__main__":
